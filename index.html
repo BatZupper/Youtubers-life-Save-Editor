@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor YLS</title>
+  <title>YLS Editor</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <style>
     body {
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Editor YLS</h1>
+  <h1>Youtubers Life Save Editor</h1>
   <input type="file" id="fileInput" accept=".yls">
-  <textarea id="editor" placeholder="Il contenuto del file apparirà qui..."></textarea>
+  <textarea id="editor" placeholder="The contents of the file will appear here..."></textarea>
   <br>
-  <button id="saveButton">Salva File</button>
+  <button id="saveButton">Save File</button>
 
   <script>
-    // Funzione per decodificare una stringa Base64 in un Uint8Array
+    // Function to decode a Base64 string into a Uint8Array
     function base64ToUint8Array(base64) {
       const binaryString = atob(base64);
       const len = binaryString.length;
@@ -41,7 +41,7 @@
       return bytes;
     }
 
-    // Funzione per codificare un Uint8Array in una stringa Base64
+    // Function to encode a Uint8Array into a Base64 string
     function uint8ArrayToBase64(uint8Array) {
       let binaryString = '';
       for (let i = 0; i < uint8Array.length; i++) {
@@ -50,7 +50,7 @@
       return btoa(binaryString);
     }
 
-    // Gestione del caricamento e decompressione del file
+    // Management of file loading and decompression
     document.getElementById('fileInput').addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -60,15 +60,15 @@
       const compressedData = base64ToUint8Array(base64String);
 
       try {
-        // pako.inflate è in grado di rilevare automaticamente l'header GZIP
+        // pako.inflate can automatically detect the GZIP header
         const decompressed = pako.inflate(compressedData, { to: 'string' });
         document.getElementById('editor').value = decompressed;
       } catch (error) {
-        alert('Impossibile decomprimere il file: ' + error.message);
+        alert('Unable to unzip file: ' + error.message);
       }
     });
 
-    // Gestione del salvataggio e compressione del file con GZIP (che darà il prefisso H4sIA)
+    // Management of saving and compressing the file with GZIP (which will give the H4sIA prefix)
     document.getElementById('saveButton').addEventListener('click', () => {
       const content = document.getElementById('editor').value;
       try {
@@ -85,7 +85,7 @@
 
         URL.revokeObjectURL(url);
       } catch (error) {
-        alert('Impossibile comprimere il file: ' + error.message);
+        alert('Unable to compress file: ' + error.message);
       }
     });
   </script>
