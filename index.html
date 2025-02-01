@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor YLS</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Editor YLS</h1>
+  <input type="file" id="fileInput" accept=".yls">
+  <textarea id="editor" placeholder="Il contenuto del file apparirà qui..."></textarea>
+  <br>
+  <button id="saveButton">Salva File</button>
+
+  <script>
+    // Funzione per decodificare una stringa Base64 in un Uint8Array
+    function base64ToUint8Array(base64) {
+      const binaryString = atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    // Funzione per codificare un Uint8Array in una stringa Base64
+    function uint8ArrayToBase64(uint8Array) {
+      let binaryString = '';
+      for (let i = 0; i < uint8Array.length; i++) {
+        binaryString += String.fromCharCode(uint8Array[i]);
+      }
+      return btoa(binaryString);
+    }
+
+    // Gestione del caricamento e decompressione del file
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const base64String = new TextDecoder().decode(arrayBuffer);
+      const compressedData = base64ToUint8Array(base64String);
+
+      try {
+        // pako.inflate è in grado di rilevare automaticamente l'header GZIP
+        const decompressed = pako.inflate(compressedData, { to: 'string' });
+        document.getElementById('editor').value = decompressed;
+      } catch (error) {
+        alert('Impossibile decomprimere il file: ' + error.message);
+      }
+    });
+
+    // Gestione del salvataggio e compressione del file con GZIP (che darà il prefisso H4sIA)
+    document.getElementById('saveButton').addEventListener('click', () => {
+      const content = document.getElementById('editor').value;
+      try {
+        // Utilizza pako.gzip() invece di pako.deflate()
+        const compressed = pako.gzip(content);
+        const base64String = uint8ArrayToBase64(compressed);
+        const blob = new Blob([base64String], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'edited.yls';
+        a.click();
+
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        alert('Impossibile comprimere il file: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
