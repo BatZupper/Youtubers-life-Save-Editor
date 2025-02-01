@@ -1,12 +1,18 @@
 # Youtubers-life-Save-Editor
 A Youtubers life game save editor
 
-# Progress
-0.15% done current status: Managed to manually modify a save file and do some little modifications with succes
+# Progress:
+15% done current status: A Text editor with automatic GZIP Functionallity
 
-# Save formatt
+# Save format:
 the save formatt has been discovered and it's quite simple:
 save file is a simple .tsv compressed as a GZIP
+
+# How to use it:
+The usage of the programm is very simple
+1 You load your save file
+2 Yo do your modification thanks to the text editor
+3 Save the file and reload it on the game
 
 ## help:
 anyone can help :D
