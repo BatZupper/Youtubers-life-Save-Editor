@@ -2,7 +2,8 @@
 A Youtubers life game save editor
 
 # Progress:
-15% done current status: A Text editor with automatic GZIP Functionallity
+25% done current status: An easy save editor wich can be used by the avarage player
+The next step i want to implement are automatic patch and add easier ways than knowing the id for modifying things like the house
 
 # Save format:
 the save formatt has been discovered and it's quite simple:
