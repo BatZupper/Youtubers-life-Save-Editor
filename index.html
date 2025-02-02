@@ -10,27 +10,58 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    textarea {
-      width: 100%;
-      height: 300px;
-      margin-top: 10px;
-    }
-    button {
+    input[type="file"], button {
       margin-top: 10px;
       padding: 10px 15px;
       font-size: 16px;
+    }
+    .group {
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .group-header {
+      background-color: #f9f9f9;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .group-content {
+      display: none;
+      padding: 10px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+    }
+    .data-table th, .data-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .data-table input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      border: none;
+      background: transparent;
+      padding: 4px;
+    }
+    .data-table input[type="text"]:focus {
+      outline: 1px solid #007BFF;
+      background: #fff;
     }
   </style>
 </head>
 <body>
   <h1>Youtubers Life Save Editor</h1>
   <input type="file" id="fileInput" accept=".yls">
-  <textarea id="editor" placeholder="The contents of the file will appear here..."></textarea>
+  <div id="dataContainer"></div>
   <br>
   <button id="saveButton">Save File</button>
 
   <script>
-    // Function to decode a Base64 string into a Uint8Array
+    // Converte una stringa Base64 in Uint8Array
     function base64ToUint8Array(base64) {
       const binaryString = atob(base64);
       const len = binaryString.length;
@@ -41,7 +72,7 @@
       return bytes;
     }
 
-    // Function to encode a Uint8Array into a Base64 string
+    // Converte un Uint8Array in una stringa Base64
     function uint8ArrayToBase64(uint8Array) {
       let binaryString = '';
       for (let i = 0; i < uint8Array.length; i++) {
@@ -50,7 +81,6 @@
       return btoa(binaryString);
     }
 
-    // Management of file loading and decompression
     document.getElementById('fileInput').addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -60,19 +90,101 @@
       const compressedData = base64ToUint8Array(base64String);
 
       try {
-        // pako.inflate can automatically detect the GZIP header
         const decompressed = pako.inflate(compressedData, { to: 'string' });
-        document.getElementById('editor').value = decompressed;
+        displayGroups(decompressed);
       } catch (error) {
         alert('Unable to unzip file: ' + error.message);
       }
     });
 
-    // Management of saving and compressing the file with GZIP (which will give the H4sIA prefix)
+    // Visualizza il contenuto decomprimato raggruppato in tabelle editabili
+    function displayGroups(content) {
+      const container = document.getElementById('dataContainer');
+      container.innerHTML = '';
+
+      const lines = content.trim().split('\n');
+      let currentGroup = null;
+      let table = null;
+      let isHeaderAdded = false;
+
+      lines.forEach(line => {
+        if (line.startsWith('###')) {
+          // Inizio di un nuovo gruppo
+          currentGroup = document.createElement('div');
+          currentGroup.className = 'group';
+
+          const header = document.createElement('div');
+          header.className = 'group-header';
+          header.textContent = line.substring(3).trim();
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'group-content';
+
+          header.addEventListener('click', () => {
+            contentDiv.style.display = contentDiv.style.display === 'none' ? 'block' : 'none';
+          });
+
+          currentGroup.appendChild(header);
+          currentGroup.appendChild(contentDiv);
+          container.appendChild(currentGroup);
+
+          // Crea una nuova tabella per il gruppo corrente
+          table = document.createElement('table');
+          table.className = 'data-table';
+          contentDiv.appendChild(table);
+          isHeaderAdded = false;
+        } else if (table) {
+          // Suddivide la riga in celle (separate da tab)
+          const rowData = line.split('\t');
+
+          // Se non è stata ancora aggiunta la riga dell'intestazione, la aggiungiamo
+          const row = document.createElement('tr');
+          rowData.forEach(cellData => {
+            // Se è la prima riga del gruppo, usiamo <th>, altrimenti <td>
+            const cell = document.createElement(isHeaderAdded ? 'td' : 'th');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = cellData;
+            // Rimuoviamo la larghezza fissa per lasciare l'input adattarsi al contenuto
+            input.style.width = '100%';
+            cell.appendChild(input);
+            row.appendChild(cell);
+          });
+
+          table.appendChild(row);
+          // Se non era ancora stata aggiunta l'intestazione, ora lo è
+          if (!isHeaderAdded) {
+            isHeaderAdded = true;
+          }
+        }
+      });
+    }
+
+    // Raccoglie i dati editati da tutte le tabelle e li unisce in un formato TSV
+    function getGroupData() {
+      const groups = document.querySelectorAll('.group');
+      const lines = [];
+
+      groups.forEach(group => {
+        const header = group.querySelector('.group-header').textContent;
+        lines.push('###' + header);
+        const rows = group.querySelectorAll('table.data-table tr');
+        rows.forEach(row => {
+          // Seleziona tutti gli input, indipendentemente dal fatto che siano in th o td
+          const inputs = row.querySelectorAll('input');
+          if (inputs.length > 0) {
+            const rowData = Array.from(inputs).map(input => input.value).join('\t');
+            lines.push(rowData);
+          }
+        });
+      });
+
+      return lines.join('\n');
+    }
+
     document.getElementById('saveButton').addEventListener('click', () => {
-      const content = document.getElementById('editor').value;
+      const content = getGroupData();
       try {
-        // Utilizza pako.gzip() invece di pako.deflate()
         const compressed = pako.gzip(content);
         const base64String = uint8ArrayToBase64(compressed);
         const blob = new Blob([base64String], { type: 'application/octet-stream' });
