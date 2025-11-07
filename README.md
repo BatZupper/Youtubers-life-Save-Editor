@@ -1,23 +1,30 @@
-# Youtubers-life-Save-Editor
-A Youtubers life game save editor
+# Youtubers-Life Save Editor
 
-# Progress:
-25% done current status: An easy save editor wich can be used by the avarage player
-The next step i want to implement are automatic patch and add easier ways than knowing the id for modifying things like the house
+A simple and user-friendly save editor for Youtubers Life
 
-# Save format:
-the save formatt has been discovered and it's quite simple:
-save file is a simple .tsv compressed as a GZIP
+## Description
 
-# How to use it:
-The usage of the programm is very simple
-1 You load your save file
-2 Yo do your modification thanks to the text editor
-3 Save the file and reload it on the game
+This is an easy-to-use save editor designed for the average player. It allows you to edit your Youtubers Life save files effortlessly. no advanced knowledge required.
+Future updates will include automatic patching and more intuitive editing tools, so you won’t need to know internal IDs to modify things like your house or other assets.
 
-## help:
-anyone can help :D
+## Save Format
 
-## story of the project:
-Youtubers Life always had a special place in my heart (I've like 91.2 hours on the game) and when a friend of mine told me that he had 100+ hours on it i decided to show him that I was the biggest YL1 fan so I started this project
-at first i was very confused i spent hours looking at a save file on my trusty hex editor but i couldn't understand anything but i did notice something, every save file started with "H4sIA" wich was familiar too familiar. Looking a bit futher in the file it made it clear it was a GZIP file masked as a .yls save. So i tried to decrompress it and it worked! I had a fully understandable .tsv file that i could modify however i liked and manageg to do some little modifications
+The save format is quite simple: each save file is a .tsv (tab-separated values) file compressed with GZIP.
+
+## How to Use
+
+1. Load your save file.
+
+2. Make your modifications using the built-in text editor.
+
+3. Save the file and reload it in the game.
+
+## Contributing
+
+Anyone is welcome to help! :D
+
+## Project Story
+
+Youtubers Life has always held a special place in my heart- I’ve spent around 91.2 hours playing it! When a friend of mine told me he had over 100 hours, I wanted to prove that I was the bigger YL1 fan, so I started this project.
+At first, I was completely lost. I spent hours staring at a save file in my trusty hex editor, trying to make sense of it. Then I noticed something interesting. every save file started with H4sIA. It looked very familiar.
+After digging a bit deeper, I realized it was actually a GZIP file disguised as a .yls save. I tried decompressing it… and it worked! I had a fully readable .tsv file that I could edit freely. That was the moment I managed to make my first successful modifications!
