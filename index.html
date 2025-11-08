@@ -1,14 +1,28 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YLS Editor</title>
+  <title>Youtubers Life Save Editor (YLS Editor Online)</title>
+
+  <!-- SEO Metadata -->
+  <meta name="description" content="Edit your Youtubers Life save files (.yls) easily online! Upload, view, modify, and re-save your game data using this free browser-based YLS Editor.">
+  <meta name="keywords" content="Youtubers Life, save editor, YLS file, game save, decompress YLS, edit save, Youtubers Life mod, browser editor, online save editor">
+  <meta name="author" content="BatZupper">
+
+  <!-- Open Graph for social media -->
+  <meta property="og:title" content="Youtubers Life Save Editor (YLS Editor Online)">
+  <meta property="og:description" content="Edit and save Youtubers Life .yls files online. Upload, decompress, and modify your game data easily in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://batzupper.github.io/Youtubers-life-Save-Editor/">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      line-height: 1.6;
     }
     input[type="file"], button {
       margin-top: 10px;
@@ -54,14 +68,24 @@
   </style>
 </head>
 <body>
-  <h1>Youtubers Life Save Editor</h1>
-  <input type="file" id="fileInput" accept=".yls">
-  <div id="dataContainer"></div>
-  <br>
-  <button id="saveButton">Save File</button>
+  <header>
+    <h1>Youtubers Life Save Editor (YLS File Editor)</h1>
+    <p>Edit your <strong>.yls</strong> save files from Youtubers Life directly in your browser. No installation needed!</p>
+  </header>
+
+  <main>
+    <input type="file" id="fileInput" accept=".yls">
+    <div id="dataContainer"></div>
+    <br>
+    <button id="saveButton">Save Edited File</button>
+  </main>
+
+  <footer style="margin-top: 40px; font-size: 14px; color: #555;">
+    <p>© 2025 YLS Editor — Free Online Save File Tool for <em>Youtubers Life</em></p>
+  </footer>
 
   <script>
-    // Converte una stringa Base64 in Uint8Array
+    // Convert a Base64 string to Uint8Array
     function base64ToUint8Array(base64) {
       const binaryString = atob(base64);
       const len = binaryString.length;
@@ -72,7 +96,7 @@
       return bytes;
     }
 
-    // Converte un Uint8Array in una stringa Base64
+    // Convert a Uint8Array to a Base64 string
     function uint8ArrayToBase64(uint8Array) {
       let binaryString = '';
       for (let i = 0; i < uint8Array.length; i++) {
@@ -97,7 +121,7 @@
       }
     });
 
-    // Visualizza il contenuto decomprimato raggruppato in tabelle editabili
+    // Display decompressed content grouped into editable tables
     function displayGroups(content) {
       const container = document.getElementById('dataContainer');
       container.innerHTML = '';
@@ -109,7 +133,7 @@
 
       lines.forEach(line => {
         if (line.startsWith('###')) {
-          // Inizio di un nuovo gruppo
+          // Start of a new group
           currentGroup = document.createElement('div');
           currentGroup.className = 'group';
 
@@ -128,39 +152,34 @@
           currentGroup.appendChild(contentDiv);
           container.appendChild(currentGroup);
 
-          // Crea una nuova tabella per il gruppo corrente
+          // Create a new table for the current group
           table = document.createElement('table');
           table.className = 'data-table';
           contentDiv.appendChild(table);
           isHeaderAdded = false;
         } else if (table) {
-          // Suddivide la riga in celle (separate da tab)
+          // Split line into cells (tab-separated)
           const rowData = line.split('\t');
 
-          // Se non è stata ancora aggiunta la riga dell'intestazione, la aggiungiamo
+          // Create header or data row
           const row = document.createElement('tr');
           rowData.forEach(cellData => {
-            // Se è la prima riga del gruppo, usiamo <th>, altrimenti <td>
             const cell = document.createElement(isHeaderAdded ? 'td' : 'th');
             const input = document.createElement('input');
             input.type = 'text';
             input.value = cellData;
-            // Rimuoviamo la larghezza fissa per lasciare l'input adattarsi al contenuto
             input.style.width = '100%';
             cell.appendChild(input);
             row.appendChild(cell);
           });
 
           table.appendChild(row);
-          // Se non era ancora stata aggiunta l'intestazione, ora lo è
-          if (!isHeaderAdded) {
-            isHeaderAdded = true;
-          }
+          if (!isHeaderAdded) isHeaderAdded = true;
         }
       });
     }
 
-    // Raccoglie i dati editati da tutte le tabelle e li unisce in un formato TSV
+    // Gather edited data from all tables and join into TSV format
     function getGroupData() {
       const groups = document.querySelectorAll('.group');
       const lines = [];
@@ -170,7 +189,6 @@
         lines.push('###' + header);
         const rows = group.querySelectorAll('table.data-table tr');
         rows.forEach(row => {
-          // Seleziona tutti gli input, indipendentemente dal fatto che siano in th o td
           const inputs = row.querySelectorAll('input');
           if (inputs.length > 0) {
             const rowData = Array.from(inputs).map(input => input.value).join('\t');
